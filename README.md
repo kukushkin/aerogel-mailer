@@ -1,19 +1,25 @@
-# Aerogel::Module123
+# aerogel-mailer
 
-An aerogel module skeleton. Starting point for any generic aerogel module.
-
-This module template includes all folders an aerogel module can use, but none of them are obligatory. For example, if a module does not have any assets, it is perfectly safe to remove assets/* folders.
+A mail delivery module for aerogel applications.
 
 ## Usage
 
-1. Clone repository
-2. Rename 'module123' to your module name anywhere
-3. Add code, remove unneeded folders
 
 In your application's config.ru:
 ```ruby
-require 'aerogel'
-require 'aerogel/module123' # ...change to your module name
+require 'aerogel/core'
+require 'aerogel/mailer' #
+
+# define a new mailer named :test
+Aerogel.mailer :test do |f, t|
+  from f
+  to t
+  subject 'test'
+  body 'hello'
+end
+
+# then send email message using this mailer:
+Aerogel.email :test, 'from@domain.org', 'to@another.org'
 
 run Aerogel::Application.load
 ```
