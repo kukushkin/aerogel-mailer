@@ -10,12 +10,8 @@ module Aerogel
 
   # configure module
   on_load do |app|
-    Mailer.configure
+    app.register Aerogel::Mailer
   end
-
-  # Extend Aerogel
-  #
-  extend Aerogel::Mailer
 
 end
 
