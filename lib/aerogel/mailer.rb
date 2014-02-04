@@ -2,6 +2,8 @@ require 'aerogel/core'
 require 'aerogel/mailer/version'
 require 'aerogel/mailer/core'
 require 'aerogel/mailer/definition'
+require 'aerogel/mailer/error'
+
 
 module Aerogel
 

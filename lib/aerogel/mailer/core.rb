@@ -31,14 +31,23 @@ module Aerogel::Mailer
     params = mailer.compile( *args )
     puts "** sending mail: #{params}"
     begin
-      Mail.deliver do
+      message = Mail.new do
         from params[:from]
         to params[:to]
         subject params[:subject]
-        body params[:body]
+        text_part do
+          content_type 'text/plain; charset=UTF-8'
+          body params[:body][:text]
+        end if params[:body][:text]
+        html_part do
+          content_type 'text/html; charset=UTF-8'
+          body params[:body][:html]
+        end if params[:body][:html]
       end
-    rescue => e
-      raise "Mailer '#{name}' failed to deliver email: #{e}"
+      message.charset = "UTF-8"
+      message.deliver
+    rescue StandardError => e
+      raise Aerogel::Mailer::Error.new "Mailer '#{name}' failed to deliver email: #{e}"
     end
     true
   end
