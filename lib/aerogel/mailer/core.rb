@@ -13,6 +13,10 @@ module Aerogel::Mailer
 
     # load mailers
     Aerogel::require_resources( :app, "mailers/**/*.rb" )
+
+    # register reloader
+    setup_reloader(app) if Aerogel.config.aerogel.reloader?
+
   end
 
   # Registers new mailer
@@ -50,6 +54,22 @@ module Aerogel::Mailer
       raise Aerogel::Mailer::Error.new "Mailer '#{name}' failed to deliver email: #{e}"
     end
     true
+  end
+
+private
+
+  # Sets up reloader
+  #
+  def self.setup_reloader( app )
+    app.use Aerogel::Reloader, ->{ Aerogel.get_resource_list( :app, "mailers/**/*.rb" ) } do |files|
+      # reset mailers
+      Definition.mailers.clear
+
+      # load mailers
+      files.each do |filename|
+        Aerogel.require_into( Aerogel::Application, filename )
+      end
+    end
   end
 
 

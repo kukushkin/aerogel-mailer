@@ -108,23 +108,33 @@ class Definition
 
 private
 
-  # Returns template file name, use cached file name if possible.
-  #
-  def fetch_template_name( filename )
-    @template_name_cache ||= {} # reset if reload templates is used
-    return @template_name_cache[filename] unless @template_name_cache[filename].nil?
-    if Aerogel.get_resource( :views, filename+".erb" )
-      @template_name_cache[filename] = filename.to_sym
-    else
-      @template_name_cache[filename] = false # template not found
+  class TemplateNameCache
+    # Returns template file name, use cached file name if possible.
+    #
+    def self.fetch( filename )
+      @cache ||= {} # reset if reload templates is used
+      return @cache[filename] unless @cache[filename].nil?
+      if Aerogel.get_resource( :views, filename+".erb" )
+        @cache[filename] = filename.to_sym
+      else
+        @cache[filename] = false # template not found
+      end
+      @cache[filename]
     end
-    @template_name_cache[filename]
-  end
+
+    def self.clear
+      @cache = {}
+    end
+  end # class TemplateNameCache
 
   # Renders message body using filled params.
   # Stores rendered body (text and html parts) into params[:body] hash.
   #
   def render_body
+    if Aerogel.config.aerogel.reloader?
+      TemplateNameCache.clear
+      template_cache.clear
+    end
     params[:body] ||= {}
     return unless params[:body].blank? # body set in the mailer definition block
     if params[:layout] == false
@@ -132,11 +142,11 @@ private
       layout_html = false
     else
       layout_name = params[:layout] || DEFAULT_LAYOUT
-      layout_text = fetch_template_name( "layouts/#{layout_name}.text" )
-      layout_html = fetch_template_name( "layouts/#{layout_name}.html" )
+      layout_text = TemplateNameCache.fetch( "layouts/#{layout_name}.text" )
+      layout_html = TemplateNameCache.fetch( "layouts/#{layout_name}.html" )
     end
-    body_text = fetch_template_name( "mailers/#{name}.text" )
-    body_html = fetch_template_name( "mailers/#{name}.html" )
+    body_text = TemplateNameCache.fetch( "mailers/#{name}.text" )
+    body_html = TemplateNameCache.fetch( "mailers/#{name}.html" )
     if !body_text && !body_html
       raise Aerogel::Mailer::Error.new "No body templates found for mailer '#{name}'"
     end
