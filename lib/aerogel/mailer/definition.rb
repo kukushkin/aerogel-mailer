@@ -85,7 +85,7 @@ class Definition
     @self_before_instance_eval = eval "self", blk.binding
     params.clear
     instance_exec( *args, &blk )
-    params[:from] ||= config.mailer.default_from
+    params[:from] ||= config.mailer.default_from!
     if params[:from].nil?
       raise Aerogel::Mailer::Error.new("'from' address is not set for mailer '#{name}'")
     end

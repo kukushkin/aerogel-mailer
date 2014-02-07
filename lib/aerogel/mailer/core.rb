@@ -12,7 +12,9 @@ module Aerogel::Mailer
     end
 
     # load mailers
-    Aerogel::require_resources( :app, "mailers/**/*.rb" )
+    Aerogel::get_resource_list( :app, "mailers/**/*.rb" ).each do |filename|
+      Aerogel.require_into( Aerogel::Application, filename )
+    end
 
     # register reloader
     setup_reloader(app) if Aerogel.config.aerogel.reloader?
