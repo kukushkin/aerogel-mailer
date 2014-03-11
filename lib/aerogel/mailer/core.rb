@@ -30,11 +30,17 @@ module Aerogel::Mailer
   # Deliver email using mailer specified by +name+
   #
   def email( name, *args )
+    email_with_context( self, name, *args )
+  end
+
+  # Deliver email using mailer specified by +name+
+  #
+  def email_with_context( context, name, *args )
     mailer = Aerogel::Mailer::Definition.mailers[name.to_sym]
     unless mailer
       raise ArgumentError.new "Mailer '#{name}' is not defined"
     end
-    params = mailer.compile( *args )
+    params = mailer.compile( context, *args )
     puts "** sending mail: #{params}"
     begin
       message = Mail.new do

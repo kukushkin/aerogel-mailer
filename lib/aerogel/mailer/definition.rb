@@ -78,11 +78,12 @@ class Definition
     params[:locals].merge! args
   end
 
-  def compile( *args )
+  def compile( context, *args )
     unless args.size == blk.arity
       raise Aerogel::Mailer::Error.new("wrong number of arguments for mailer '#{name}': #{args.size} for #{blk.arity}")
     end
-    @self_before_instance_eval = eval "self", blk.binding
+    # @self_before_instance_eval = eval "self", blk.binding
+    @self_before_instance_eval = context
     params.clear
     instance_exec( *args, &blk )
     params[:from] ||= config.mailer.default_from!
